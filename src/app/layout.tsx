@@ -3,6 +3,8 @@ import { ThemeProvider } from "@/components/theme-provider";
 import { Nunito_Sans } from "next/font/google";
 import "./globals.css";
 import { Header } from "@/components/Header";
+import { Toaster } from "@/components/ui/sonner";
+import { CountryProvider } from "@/lib/CountryContext";
 
 const nunitoSans = Nunito_Sans({
   variable: "--font-nunito-sans",
@@ -21,18 +23,21 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en" suppressHydrationWarning>
-      <body className={`${nunitoSans.variable} font-nunito-sans antialiased`}>
-        <ThemeProvider
-          attribute="class"
-          defaultTheme="system"
-          enableSystem
-          disableTransitionOnChange
-        >
-          <Header />
-          {children}
-        </ThemeProvider>
-      </body>
-    </html>
+    <CountryProvider>
+      <html lang="en" suppressHydrationWarning>
+        <body className={`${nunitoSans.variable} font-nunito-sans antialiased`}>
+          <ThemeProvider
+            attribute="class"
+            defaultTheme="system"
+            enableSystem
+            disableTransitionOnChange
+          >
+            <Header />
+            {children}
+            <Toaster richColors />
+          </ThemeProvider>
+        </body>
+      </html>
+    </CountryProvider>
   );
 }
