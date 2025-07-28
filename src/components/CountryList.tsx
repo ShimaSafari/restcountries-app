@@ -1,16 +1,30 @@
 "use client";
 import { useMemo } from "react";
+import { useCountries } from "@/lib/CountryContext";
 import Link from "next/link";
 import Image from "next/image";
-import { useCountries } from "@/lib/CountryContext";
 import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
 
-export default function CountryList() {
+export default function CountryList({
+  region,
+  search,
+}: {
+  search: string;
+  region: string | undefined;
+}) {
   const { countries, loading } = useCountries();
+
+  // ---- Filter countries based on search and region
   const filteredCountries = useMemo(() => {
-    return countries;
-  }, [countries]);
+    return countries.filter((country) => {
+      const matchesSearch = country.name.common
+        .toLowerCase()
+        .includes(search.toLowerCase());
+      const matchesRegion = !region || country.region === region;
+      return matchesRegion && matchesSearch;
+    });
+  }, [countries, search, region]);
 
   if (loading) {
     return (
@@ -19,12 +33,16 @@ export default function CountryList() {
       </div>
     );
   }
+
+  if (filteredCountries.length === 0) {
+    return <div className="text-center">No countries found.</div>;
+  }
   return (
     <div className="mt-8 sm:mt-12 grid grid-cols-1 mx-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-8 sm:gap-20 md:gap-24 lg:gap-20 ">
       {filteredCountries.map((co) => (
         <Card
           key={co.cca3}
-          className="min-w-65 justify-self-center py-0 rounded-sm overflow-hidden border-0 shadow-md hover:shadow-lg hover:-translate-y-1 hover:scale-105 transition duration-300 ease-in-out "
+          className="min-w-65 justify-self-center py-0 rounded-sm overflow-hidden border-0 shadow-md hover:shadow-sidebar-primary/40 hover:-translate-y-1 hover:scale-105 transition duration-300 ease-in-out "
         >
           <Link href={`/country/${co.cca3}`}>
             <CardHeader className="px-0 h-40">
