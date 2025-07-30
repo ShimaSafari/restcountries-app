@@ -21,6 +21,7 @@ export default function SearchInput({
         </div>
         <Input
           value={search}
+          type="searach"
           onChange={handleSearch}
           className="w-full md:w-80 lg:w-120 bg-card dark:bg-card border-0 py-6 sm:py-7 placeholder:text-foreground placeholder:text-xs sm:placeholder:text-sm pl-20 focus-visible:ring-1 focus-visible:ring-sidebar-primary shadow-sm"
           placeholder="Search for a country..."

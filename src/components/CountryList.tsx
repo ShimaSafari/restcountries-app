@@ -1,17 +1,23 @@
 "use client";
-import { useMemo } from "react";
+import { useEffect, useMemo } from "react";
 import { useCountries } from "@/lib/CountryContext";
 import Link from "next/link";
 import Image from "next/image";
-import { Loader2 } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "./ui/card";
+import { Skeleton } from "./ui/skeleton";
 
 export default function CountryList({
   region,
   search,
+  page,
+  itemsPerPage,
+  setTotalItems,
 }: {
   search: string;
   region: string | undefined;
+  page: number;
+  itemsPerPage: number;
+  setTotalItems?: (total: number) => void;
 }) {
   const { countries, loading } = useCountries();
 
@@ -26,23 +32,61 @@ export default function CountryList({
     });
   }, [countries, search, region]);
 
+  // ---- update totalitems for pagination -----
+  useEffect(() => {
+    if (setTotalItems) {
+      setTotalItems(filteredCountries.length);
+    }
+  }, [filteredCountries, setTotalItems]);
+
+  // ----paginate countries ---------
+  const paginatedCountries = useMemo(() => {
+    const start = (page - 1) * itemsPerPage;
+    return filteredCountries.slice(start, start + itemsPerPage);
+  }, [filteredCountries, page, itemsPerPage]);
+
+  // ---- handle loading skeleton ----
   if (loading) {
     return (
-      <div className="text-center">
-        <Loader2 className="animate-spin" />
+      <div className="mt-8 sm:mt-12 grid grid-cols-1 mx-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-8 sm:gap-20 md:gap-24 lg:gap-20">
+        {Array.from({ length: itemsPerPage }).map((_, item) => (
+          <Card
+            key={item}
+            className="min-w-65 justify-self-center py-0 rounded-sm border-0 overflow-hidden shadow-md"
+          >
+            <CardHeader className="px-0 h-40">
+              <Skeleton className="h-40 w-full" />
+            </CardHeader>
+            <CardContent className="pt-2 pb-10 flex flex-col gap-1">
+              <CardTitle className="mb-1.5">
+                <Skeleton className="h-7 w-2/3" />
+              </CardTitle>
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-5 w-3/4" />
+              <Skeleton className="h-5 w-3/4" />
+            </CardContent>
+          </Card>
+        ))}
       </div>
     );
   }
 
+  // ---- handle empty state ---------
   if (filteredCountries.length === 0) {
-    return <div className="text-center">No countries found.</div>;
+    return (
+      <div className="flex h-40 justify-center items-center">
+        <p className="text-center text-foreground text-xl">
+          No countries found.
+        </p>
+      </div>
+    );
   }
   return (
     <div className="mt-8 sm:mt-12 grid grid-cols-1 mx-10 sm:mx-0 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-y-8 sm:gap-20 md:gap-24 lg:gap-20 ">
-      {filteredCountries.map((co) => (
+      {paginatedCountries.map((co) => (
         <Card
           key={co.cca3}
-          className="min-w-65 justify-self-center py-0 rounded-sm overflow-hidden border-0 shadow-md hover:shadow-sidebar-primary/40 hover:-translate-y-1 hover:scale-105 transition duration-300 ease-in-out "
+          className="w-65 justify-self-center py-0 rounded-sm overflow-hidden border-0 shadow-md hover:shadow-sidebar-primary/40 hover:-translate-y-1 hover:scale-105 transition duration-300 ease-in-out "
         >
           <Link href={`/country/${co.cca3}`}>
             <CardHeader className="px-0 h-40">

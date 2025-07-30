@@ -33,7 +33,7 @@ export default function RootLayout({
             disableTransitionOnChange
           >
             <Header />
-            {children}
+            <div className="py-6 md:py-12">{children}</div>
             <Toaster richColors />
           </ThemeProvider>
         </body>
